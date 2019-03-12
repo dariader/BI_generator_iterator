@@ -10,7 +10,7 @@ def generator(*args):
         else:
             step = -1
     elif len(args) == 1:
-        finish = args[0]
+        finish = int(args[0])
         begin = 0
         if finish >= begin:
             step = 1
@@ -19,12 +19,9 @@ def generator(*args):
     else:
         raise ValueError('Wrong data input error')
 
-    if begin == finish or step > (finish-begin):
-        raise ValueError('Wrong data input error')
-
     assert (isinstance(begin, int))
     assert (isinstance(finish, int))
-    assert (isinstance(finish, int))
+    assert (isinstance(step, int))
 
 
     current = begin
@@ -40,8 +37,14 @@ def generator(*args):
         neg_mode = True
         if len(args) < 3:
             return []
+        elif step > finish - begin:
+            return []
     elif begin <= finish and step < 0:
         return []
+
+    if len(args) == 3 and pos_mode == True and (begin == finish or step > (finish-begin)):
+        return []
+
     while (pos_mode == True and current < finish) or (neg_mode == True and current > finish):
         yield current
         current += step
@@ -71,11 +74,14 @@ class Iterator(object):
         assert (isinstance(finish, int))
         assert (isinstance(finish, int))
 
+
         self.current = begin
         self.finish = finish
         self.step = step
         self.pos_mode = False
         self.neg_mode = False
+        self.begin_iteration = False
+
 
         if begin <= finish:
             self.pos_mode = True
@@ -88,14 +94,14 @@ class Iterator(object):
         return self
 
     def __next__(self):
-
-        if (self.pos_mode == True and self.current >= self.finish) or (
-                self.neg_mode == True and self.current <= self.finish):
+        if (self.pos_mode == True and self.step < 0) or (self.neg_mode == True and self.step > 0):
             raise StopIteration
-        elif self.neg_mode == True and len(self.args) < 3:
+        elif self.step >= self.finish-self.current != True and len(self.args) == 3 and self.pos_mode == True and self.begin_iteration == False:
             raise StopIteration
 
         else:
-            self.current += self.step
-            return self.current - self.step
-
+            self.begin_iteration = True
+            while self.current < self.finish:
+                self.current = self.current + self.step
+                return self.current - self.step
+            raise StopIteration
